@@ -69,6 +69,7 @@ class Controller:
             },
             Mode.COLLECTION: {
                 'q': Command('Quit collection', self._quit_collection),
+                'n': Command('Next group', self._next_group),
                 **self.common_cmds,
             },
             Mode.PREDICTION: {
@@ -228,6 +229,11 @@ class Controller:
             Mode.MAIN,
             f' Collection completed | {self._current_label!r} | {self._current_samples} samples'
         )
+    
+    def _next_group(self):
+        label = self._current_label
+        self._quit_collection()
+        self._start_collection(label)
 
     # Prediction commands
 
