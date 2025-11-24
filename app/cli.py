@@ -21,9 +21,8 @@ class CLI:
         self.lock = threading.Lock()
 
     def on_data(self, data: np.ndarray):
-        with self.lock:
-            self.controller.process_data(data)
-            self.session.app.invalidate() # Refresh the UI
+        self.controller.process_data(data)
+        self.session.app.invalidate() # Refresh the UI
 
     def _input_loop(self):
         with patch_stdout(raw=True):
