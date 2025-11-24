@@ -24,8 +24,8 @@ if __name__ == '__main__':
 
     serial_buffer_size = 300
     serial_message_mapping = {
-        'izq': 'cal',
-        'der': 'cal',
+        'move': 'unlock',
+        'rest': 'lock',
     }
 
     app.setup_communicator(
