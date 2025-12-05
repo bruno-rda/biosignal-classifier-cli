@@ -157,7 +157,7 @@ class SerialCommunicator:
         
         try:
             self.connection_manager.write(data.encode('utf-8'))
-            logger.info(f'Flushed {message} {mapped}')
+            print(f'Flushed {message} {mapped}')
             self._buffer.clear()
         except Exception as e:
             logger.error(f'Flush failed: {e}')
