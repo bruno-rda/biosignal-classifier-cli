@@ -1,3 +1,4 @@
+# Script for EEG motor intention prediction
 from core.processing.features import CombinedFeatures, CCAFeatures, FFTFeatures, PSDFeatures
 from core.processing.processor import Processor
 from .utils import create_app
@@ -27,7 +28,7 @@ if __name__ == '__main__':
         automatic_save=False,
     )
 
-    serial_buffer_size = 300
+    serial_buffer_size = 60
     serial_message_mapping = {
         'izq': 'cal',
         'der': 'cal',

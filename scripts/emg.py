@@ -1,3 +1,4 @@
+# Script for EMG prediction
 from core.processing.features import LinearFeatures
 from core.processing.processor import Processor
 from .utils import create_app
@@ -18,7 +19,7 @@ if __name__ == '__main__':
         signal_type='emg',
         processor_getter=get_processor,
         data_path='./experiments/data_001',
-        session_path='./experiments/session_001',
+        session_path='./experiments/session_003',
         automatic_save=False,
     )
 
@@ -31,7 +32,7 @@ if __name__ == '__main__':
         'cuatro': '30000',
         'cinco': '00000',
         'rock': '30330',
-        'ok': '22000',
+        'ok': '33000',
         'L': '00333',
         'thumbsup': '03333',
         'mentada': '33033',

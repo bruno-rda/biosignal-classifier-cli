@@ -1,3 +1,4 @@
+# Script for EEG motor execution prediction
 from core.processing.features import CSPFeatures
 from core.processing.processor import Processor
 from .utils import create_app
@@ -14,15 +15,15 @@ def get_processor():
 
 if __name__ == '__main__':
     app = create_app(
-        mode='scratch',
+        mode='data',
         signal_type='eeg',
         processor_getter=get_processor,
-        data_path='./experiments/data_001',
+        data_path='./experiments/data_009',
         session_path='./experiments/session_001',
         automatic_save=False,
     )
 
-    serial_buffer_size = 300
+    serial_buffer_size = 60
     serial_message_mapping = {
         'move': 'unlock',
         'rest': 'lock',
@@ -33,4 +34,4 @@ if __name__ == '__main__':
         message_mapping=serial_message_mapping
     )
 
-    app.run('random')
+    app.run('udp')
