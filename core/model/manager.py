@@ -7,7 +7,7 @@ from sklearn.svm import SVC
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.model_selection import StratifiedGroupKFold
-from sklearn.metrics import accuracy_score, f1_score, confusion_matrix
+from sklearn.metrics import accuracy_score, f1_score, confusion_matrix, classification_report
 from sklearn.feature_selection import SelectPercentile, f_classif
 from core.io.utils import save_json, load_json
 import logging
@@ -78,7 +78,8 @@ class ModelManager:
         X: np.ndarray, 
         y: np.ndarray, 
         groups: np.ndarray, 
-        random_state: Optional[int] = None
+        random_state: Optional[int] = None,
+        folds: int = 5
     ) -> dict[str, Any]:
         random_state = random_state or np.random.randint(0, 1e3)
         logger.info(f'Running cross-validation with random state: {random_state}')
@@ -89,13 +90,14 @@ class ModelManager:
                 'distribution in cross-validation folds and reduce reliability of results.'
             )
 
-        cv = StratifiedGroupKFold(n_splits=5, shuffle=True, random_state=random_state)
+        cv = StratifiedGroupKFold(n_splits=folds, shuffle=True, random_state=random_state)
         y = self.label_encoder.fit_transform(y)
         
         metrics = {
             'accuracy': [],
             'f1': [],
-            'confusion_matrices': []
+            'confusion_matrices': [],
+            'per_label_accuracy': {}
         }
         
         for fold, (train_idx, val_idx) in enumerate(cv.split(X, y, groups), start=1):
@@ -115,10 +117,27 @@ class ModelManager:
             metrics['f1'].append(f1)
             metrics['confusion_matrices'].append(cm)
             
+            # Compute per-label accuracy
+            for label in np.unique(y_val):
+                label_mask = y_val == label
+                label_acc = accuracy_score(y_val[label_mask], y_pred[label_mask])
+                mapped_label = self.label_encoder.inverse_transform([label])[0]
+                
+                if mapped_label not in metrics['per_label_accuracy']:
+                    metrics['per_label_accuracy'][mapped_label] = []
+                
+                metrics['per_label_accuracy'][mapped_label].append(label_acc)
+            
             logger.info(f'Fold {fold}: Accuracy={acc:.3f}, F1={f1:.3f}')
         
         accuracy = metrics['accuracy']
         logger.info(f'Mean accuracy: {np.mean(accuracy):.3f} ± {np.std(accuracy):.3f}')
+        
+        for label, label_accuracies in metrics['per_label_accuracy'].items():
+            mean_label_acc = np.mean(label_accuracies)
+            std_label_acc = np.std(label_accuracies)
+            logger.info(f'Label {label} - Mean accuracy: {mean_label_acc:.3f} ± {std_label_acc:.3f}')
+        
         return metrics
     
     def predict(self, X: np.ndarray) -> list[tuple[Any, float, dict[Any, float]]]:
